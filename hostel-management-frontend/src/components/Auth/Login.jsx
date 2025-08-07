@@ -60,7 +60,6 @@ function Login() {
           "[Login] Profile check status:",
           profileCheckResponse.status
         );
-
         if (profileCheckResponse.status === 404) {
           localStorage.removeItem("studentId");
           console.log("[Login] Redirecting to complete profile.");
