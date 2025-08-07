@@ -1,88 +1,93 @@
 // src/components/Dashboards/Admin/StudentList.jsx - UPDATED for Separate View/Edit
-import React, { useState, useEffect } from 'react';
-import Modal from '../../Modal'; 
-import EditStudentForm from './EditStudentForm'; 
-import ViewStudentDetails from './ViewStudentDetails';
+import React, { useState, useEffect } from "react";
+import Modal from "../../Modal";
+import EditStudentForm from "./EditStudentForm";
+import ViewStudentDetails from "./ViewStudentDetails";
 
 function StudentList({ onRefresh, selectedHostelId }) {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [showModal, setShowModal] = useState(false); 
-  const [modalMode, setModalMode] = useState(null); 
-  const [currentStudent, setCurrentStudent] = useState(null); 
+  const [error, setError] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState(null);
+  const [currentStudent, setCurrentStudent] = useState(null);
 
   useEffect(() => {
     const fetchStudents = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (!token) {
-          setError('Authentication token not found. Please log in.');
+          setError("Authentication token not found. Please log in.");
           setLoading(false);
           return;
         }
 
         const url = selectedHostelId
-          ? `http://localhost:5000/api/students?hostelId=${selectedHostelId}`
-          : 'http://localhost:5000/api/students';
+          ? `http://hostel-management-3x2z.onrender.com/api/students?hostelId=${selectedHostelId}`
+          : "http://hostel-management-3x2z.onrender.com/api/students";
 
         const response = await fetch(url, {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch students.');
+          throw new Error(errorData.message || "Failed to fetch students.");
         }
 
         const data = await response.json();
         setStudents(data);
       } catch (err) {
-        console.error('Error fetching students:', err.message);
-        setError(err.message || 'Failed to load student data.');
+        console.error("Error fetching students:", err.message);
+        setError(err.message || "Failed to load student data.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchStudents();
-  }, [onRefresh, selectedHostelId]); 
-
+  }, [onRefresh, selectedHostelId]);
 
   const handleDelete = async (studentId, studentName) => {
-    if (!window.confirm(`Are you sure you want to delete student: ${studentName}? This action cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete student: ${studentName}? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        alert('Not authenticated. Please log in again.');
+        alert("Not authenticated. Please log in again.");
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/students/${studentId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://hostel-management-3x2z.onrender.com/api/students/${studentId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete student.');
+        throw new Error(errorData.message || "Failed to delete student.");
       }
 
       alert(`Student ${studentName} deleted successfully!`);
       if (onRefresh) {
         onRefresh();
       }
-
     } catch (err) {
-      console.error('Delete student error:', err.message);
+      console.error("Delete student error:", err.message);
       alert(`Error deleting student: ${err.message}`);
     }
   };
@@ -90,29 +95,28 @@ function StudentList({ onRefresh, selectedHostelId }) {
   // Handler for Edit button click
   const handleEdit = (student) => {
     setCurrentStudent(student);
-    setModalMode('edit');
-    setShowModal(true); 
+    setModalMode("edit");
+    setShowModal(true);
   };
 
   const handleView = (student) => {
     setCurrentStudent(student);
-    setModalMode('view');
-    setShowModal(true); 
+    setModalMode("view");
+    setShowModal(true);
   };
 
-  const handleCloseModal = () => { 
+  const handleCloseModal = () => {
     setShowModal(false);
-    setModalMode(null); 
-    setCurrentStudent(null); 
+    setModalMode(null);
+    setCurrentStudent(null);
   };
 
-  const handleSaveEdit = () => { 
+  const handleSaveEdit = () => {
     handleCloseModal();
     if (onRefresh) {
-      onRefresh(); 
+      onRefresh();
     }
   };
-
 
   if (loading) {
     return (
@@ -140,7 +144,9 @@ function StudentList({ onRefresh, selectedHostelId }) {
       <h3 className="mb-4 text-center">Student List</h3>
       {students.length === 0 && (
         <div className="alert alert-info text-center" role="alert">
-          {selectedHostelId ? 'No student records found for the selected hostel.' : 'No student records found.'}
+          {selectedHostelId
+            ? "No student records found for the selected hostel."
+            : "No student records found."}
         </div>
       )}
       {students.length > 0 && (
@@ -159,20 +165,35 @@ function StudentList({ onRefresh, selectedHostelId }) {
               </tr>
             </thead>
             <tbody>
-              {students.map(student => (
+              {students.map((student) => (
                 <tr key={student._id}>
-                  <td>{student.rollNumber || student._id.substring(student._id.length - 4)}</td>
+                  <td>
+                    {student.rollNumber ||
+                      student._id.substring(student._id.length - 4)}
+                  </td>
                   <td>{student.fullName}</td>
                   <td>{student.email}</td>
-                  <td>{student.hostel ? student.hostel.name : 'N/A'}</td>
-                  <td>{student.room || 'N/A'}</td>
+                  <td>{student.hostel ? student.hostel.name : "N/A"}</td>
+                  <td>{student.room || "N/A"}</td>
                   <td>
-                    <span className={`badge ${student.is_checked_in ? 'bg-success' : 'bg-danger'}`}>
-                      {student.is_checked_in ? 'Checked In' : 'Checked Out'}
+                    <span
+                      className={`badge ${
+                        student.is_checked_in ? "bg-success" : "bg-danger"
+                      }`}
+                    >
+                      {student.is_checked_in ? "Checked In" : "Checked Out"}
                     </span>
                   </td>
                   <td>
-                    <span className={`badge ${student.payment_status === 'Paid' ? 'bg-info' : student.payment_status === 'Pending' ? 'bg-warning' : 'bg-danger'}`}>
+                    <span
+                      className={`badge ${
+                        student.payment_status === "Paid"
+                          ? "bg-info"
+                          : student.payment_status === "Pending"
+                          ? "bg-warning"
+                          : "bg-danger"
+                      }`}
+                    >
                       {student.payment_status}
                     </span>
                   </td>
@@ -191,7 +212,9 @@ function StudentList({ onRefresh, selectedHostelId }) {
                     </button>
                     <button
                       className="btn btn-sm btn-outline-danger"
-                      onClick={() => handleDelete(student._id, student.fullName)}
+                      onClick={() =>
+                        handleDelete(student._id, student.fullName)
+                      }
                     >
                       Delete
                     </button>
@@ -204,26 +227,32 @@ function StudentList({ onRefresh, selectedHostelId }) {
       )}
 
       {/* Conditional Modal Content based on modalMode */}
-      {showModal && currentStudent && ( // Only render modal if shown and student data is available
-        <Modal
-          show={showModal}
-          title={modalMode === 'edit' ? `Edit Student: ${currentStudent.fullName}` : `View Student: ${currentStudent.fullName}`}
-          onClose={handleCloseModal}
-        >
-          {modalMode === 'edit' ? ( // If mode is 'edit', render EditStudentForm
-            <EditStudentForm
-              student={currentStudent}
-              onSave={handleSaveEdit}
-              onCancel={handleCloseModal}
-            />
-          ) : ( // If mode is 'view', render ViewStudentDetails
-            <ViewStudentDetails
-              student={currentStudent}
-              onClose={handleCloseModal}
-            />
-          )}
-        </Modal>
-      )}
+      {showModal &&
+        currentStudent && ( // Only render modal if shown and student data is available
+          <Modal
+            show={showModal}
+            title={
+              modalMode === "edit"
+                ? `Edit Student: ${currentStudent.fullName}`
+                : `View Student: ${currentStudent.fullName}`
+            }
+            onClose={handleCloseModal}
+          >
+            {modalMode === "edit" ? ( // If mode is 'edit', render EditStudentForm
+              <EditStudentForm
+                student={currentStudent}
+                onSave={handleSaveEdit}
+                onCancel={handleCloseModal}
+              />
+            ) : (
+              // If mode is 'view', render ViewStudentDetails
+              <ViewStudentDetails
+                student={currentStudent}
+                onClose={handleCloseModal}
+              />
+            )}
+          </Modal>
+        )}
     </div>
   );
 }

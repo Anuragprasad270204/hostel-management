@@ -1,45 +1,50 @@
 // src/components/Dashboards/AdminDashboard.jsx
-import React, { useState, useEffect } from 'react';
-import StudentList from './Admin/StudentList'; 
+import React, { useState, useEffect } from "react";
+import StudentList from "./Admin/StudentList";
 
 function AdminDashboard() {
   const [refreshStudentList, setRefreshStudentList] = useState(false);
   // State for hostel filter for student list
-  const [selectedHostelId, setSelectedHostelId] = useState('');
+  const [selectedHostelId, setSelectedHostelId] = useState("");
   const [hostels, setHostels] = useState([]);
   const [loadingHostels, setLoadingHostels] = useState(true);
-  const [hostelsError, setHostelsError] = useState('');
+  const [hostelsError, setHostelsError] = useState("");
   useEffect(() => {
     const fetchHostels = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         if (!token) {
-          setHostelsError('Authentication token not found. Please log in.');
+          setHostelsError("Authentication token not found. Please log in.");
           setLoadingHostels(false);
           return;
         }
 
-        const response = await fetch('http://localhost:5000/api/hostels', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetch(
+          "http://hostel-management-3x2z.onrender.com/api/hostels",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to fetch hostels for filter.');
+          throw new Error(
+            errorData.message || "Failed to fetch hostels for filter."
+          );
         }
         const data = await response.json();
         setHostels(data);
       } catch (err) {
-        console.error('Error fetching hostels for admin filter:', err.message);
-        setHostelsError(err.message || 'Failed to load hostels for filter.');
+        console.error("Error fetching hostels for admin filter:", err.message);
+        setHostelsError(err.message || "Failed to load hostels for filter.");
       } finally {
         setLoadingHostels(false);
       }
     };
 
     fetchHostels();
-  }, []); 
+  }, []);
   const handleRefreshStudentList = () => {
-    setRefreshStudentList(prev => !prev);
+    setRefreshStudentList((prev) => !prev);
   };
 
   const handleHostelFilterChange = (event) => {
@@ -70,7 +75,9 @@ function AdminDashboard() {
   return (
     <div className="container mt-5">
       <h2 className="text-center mb-4">Admin Dashboard</h2>
-      <p className="lead text-center mb-5">Welcome, Administrator! Here are your administrative tools:</p>
+      <p className="lead text-center mb-5">
+        Welcome, Administrator! Here are your administrative tools:
+      </p>
 
       {/* Hostel Filter Section */}
       <div className="card shadow-sm mb-4">
@@ -79,7 +86,9 @@ function AdminDashboard() {
         </div>
         <div className="card-body">
           <div className="mb-3">
-            <label htmlFor="hostelFilter" className="form-label">Select Hostel:</label>
+            <label htmlFor="hostelFilter" className="form-label">
+              Select Hostel:
+            </label>
             <select
               id="hostelFilter"
               className="form-select"
@@ -104,9 +113,9 @@ function AdminDashboard() {
         </div>
         <div className="card-body">
           <StudentList
-            key={refreshStudentList ? 'refreshed-student' : 'initial-student'}
-            onRefresh={handleRefreshStudentList} 
-            selectedHostelId={selectedHostelId} 
+            key={refreshStudentList ? "refreshed-student" : "initial-student"}
+            onRefresh={handleRefreshStudentList}
+            selectedHostelId={selectedHostelId}
           />
         </div>
       </div>
@@ -115,7 +124,10 @@ function AdminDashboard() {
           <h4 className="mb-0">Room Allocation Requests</h4>
         </div>
         <div className="card-body">
-          <p>Student requests for new room allocation or changes will appear here for approval/disapproval.</p>
+          <p>
+            Student requests for new room allocation or changes will appear here
+            for approval/disapproval.
+          </p>
         </div>
       </div>
 
@@ -125,7 +137,6 @@ function AdminDashboard() {
         </div>
         <div className="card-body">
           <p>Student complaints and feedback will be displayed here.</p>
-    
         </div>
       </div>
     </div>
