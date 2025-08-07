@@ -1,4 +1,4 @@
-// models/User.js
+// models/User.js - UPDATED with explicit collection name
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -24,7 +24,10 @@ const UserSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+}, {
+  collection: 'users', // <-- CRITICAL FIX: Explicitly name the collection to prevent invalid names
 });
+
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
