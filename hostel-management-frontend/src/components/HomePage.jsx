@@ -1,6 +1,6 @@
 // src/components/HomePage.jsx
 import React from "react";
-const nitdgpLogoUrl = "../assets/nitlogo.jpeg"; // Adjust the path as necessary
+const nitdgpLogoUrl = "../../src/assets/nitlogo.jpeg"; // Adjust the path as necessary
 function HomePage() {
   //const nitdgpLogoUrl = 'https://th.bing.com/th/id/OIP.RuqAy58qL-tpE1gOUCIJdAHaHa?w=182&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'
 
