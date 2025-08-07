@@ -26,7 +26,9 @@ function CompleteProfileForm() {
 
         const response = await fetch(
           "http://hostel-management-3x2z.onrender.com/api/hostels",
-          { headers }
+          {
+            headers,
+          }
         );
         if (!response.ok) {
           const errorData = await response.json();
