@@ -12,7 +12,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 4000;
 
 const corsOptions = {
-  origin: "https://hostel-management-rose.vercel.app/",
+  origin: "https://hostel-management-rose.vercel.app",
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
