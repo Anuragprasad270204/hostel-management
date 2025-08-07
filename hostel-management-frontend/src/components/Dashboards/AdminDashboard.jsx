@@ -1,18 +1,14 @@
 // src/components/Dashboards/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
-import StudentList from './Admin/StudentList'; // Path corrected
-// Note: AddStudentForm is not rendered here as per refined scope.
-// import AddStudentForm from './Admin/AddStudentForm';
+import StudentList from './Admin/StudentList'; 
 
 function AdminDashboard() {
   const [refreshStudentList, setRefreshStudentList] = useState(false);
   // State for hostel filter for student list
   const [selectedHostelId, setSelectedHostelId] = useState('');
-  const [hostels, setHostels] = useState([]); // List of hostels for filter dropdown
+  const [hostels, setHostels] = useState([]);
   const [loadingHostels, setLoadingHostels] = useState(true);
   const [hostelsError, setHostelsError] = useState('');
-
-  // Fetch Hostels for the dropdown when component mounts
   useEffect(() => {
     const fetchHostels = async () => {
       try {
@@ -41,21 +37,16 @@ function AdminDashboard() {
     };
 
     fetchHostels();
-  }, []); // Empty dependency array means this runs once on component mount
-
-  // Callback to refresh student list (used by StudentList's delete/edit)
+  }, []); 
   const handleRefreshStudentList = () => {
     setRefreshStudentList(prev => !prev);
   };
 
-  // Handler for hostel filter dropdown change
   const handleHostelFilterChange = (event) => {
     setSelectedHostelId(event.target.value);
-    // When filter changes, trigger refresh of the student list
     handleRefreshStudentList();
   };
 
-  // Conditional rendering for hostel filter loading/error
   if (loadingHostels) {
     return (
       <div className="container mt-5 text-center">
@@ -95,7 +86,7 @@ function AdminDashboard() {
               value={selectedHostelId}
               onChange={handleHostelFilterChange}
             >
-              <option value="">-- View All Hostels --</option> {/* Option to view all students */}
+              <option value="">-- View All Hostels --</option> {}
               {hostels.map((hostel) => (
                 <option key={hostel._id} value={hostel._id}>
                   {hostel.name}
@@ -113,14 +104,12 @@ function AdminDashboard() {
         </div>
         <div className="card-body">
           <StudentList
-            key={refreshStudentList ? 'refreshed-student' : 'initial-student'} // Key to force refresh
-            onRefresh={handleRefreshStudentList} // Pass refresh callback
-            selectedHostelId={selectedHostelId} // Pass selected hostel ID for filtering
+            key={refreshStudentList ? 'refreshed-student' : 'initial-student'}
+            onRefresh={handleRefreshStudentList} 
+            selectedHostelId={selectedHostelId} 
           />
         </div>
       </div>
-
-      {/* Room Request Box Section (Placeholder) */}
       <div className="card shadow-sm mb-4">
         <div className="card-header bg-secondary text-white">
           <h4 className="mb-0">Room Allocation Requests</h4>
@@ -130,15 +119,13 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Complaints Section (Placeholder) */}
       <div className="card shadow-sm mb-4">
         <div className="card-header bg-danger text-white">
           <h4 className="mb-0">Complaints & Feedback</h4>
         </div>
         <div className="card-body">
           <p>Student complaints and feedback will be displayed here.</p>
-        {/* Note: Hostel Management and Room Management sections are removed from this AdminDashboard
-            as per your refined scope. */}
+    
         </div>
       </div>
     </div>

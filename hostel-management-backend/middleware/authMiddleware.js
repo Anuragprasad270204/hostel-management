@@ -1,6 +1,6 @@
 // middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/User'); 
 require('dotenv').config();
 
 const protect = async (req, res, next) => {
@@ -12,7 +12,7 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       req.user = await User.findById(decoded.id).select('-password');
-      req.user.role = decoded.role; // Ensure role is extracted from token
+      req.user.role = decoded.role; 
 
       next();
     } catch (error) {

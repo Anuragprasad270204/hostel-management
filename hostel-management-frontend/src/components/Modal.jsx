@@ -3,7 +3,7 @@ import React from 'react';
 
 function Modal({ show, title, onClose, children }) {
   if (!show) {
-    return null; // Don't render if not shown
+    return null;
   }
 
   return (
@@ -11,7 +11,7 @@ function Modal({ show, title, onClose, children }) {
       className="modal fade show"
       tabIndex="-1"
       role="dialog"
-      style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }} // Custom styling for backdrop
+      style={{ display: 'block', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
       aria-labelledby="modalTitle"
       aria-hidden="true"
     >
@@ -27,7 +27,7 @@ function Modal({ show, title, onClose, children }) {
             ></button>
           </div>
           <div className="modal-body">
-            {children} {/* Render whatever content is passed inside the modal */}
+            {children}
           </div>
         </div>
       </div>

@@ -2,9 +2,8 @@
 import React from 'react';
 
 function HomePage() {
-  // Using a publicly available logo URL for convenience. Replace with your local asset if preferred.
-  const nitdgpLogoUrl = 'https://upload.wikimedia.org/wikipedia/en/c/cb/NIT_Durgapur_Logo.png';
-
+  //const nitdgpLogoUrl = 'https://th.bing.com/th/id/OIP.RuqAy58qL-tpE1gOUCIJdAHaHa?w=182&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3'
+ const nitdgpLogoUrl = '../../src/assets/nitlogo.jpeg'
   return (
     <div className="container mt-5 text-center">
       <div className="d-flex justify-content-center mb-4">

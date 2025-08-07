@@ -1,17 +1,17 @@
-// src/components/Dashboards/Admin/StudentList.jsx
+// src/components/Dashboards/Admin/StudentList.jsx - UPDATED for Separate View/Edit
 import React, { useState, useEffect } from 'react';
-import Modal from '../../Modal';
-import EditStudentForm from './EditStudentForm';
+import Modal from '../../Modal'; 
+import EditStudentForm from './EditStudentForm'; 
+import ViewStudentDetails from './ViewStudentDetails';
 
-// Accept selectedHostelId as a prop
 function StudentList({ onRefresh, selectedHostelId }) {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [currentStudent, setCurrentStudent] = useState(null);
+  const [showModal, setShowModal] = useState(false); 
+  const [modalMode, setModalMode] = useState(null); 
+  const [currentStudent, setCurrentStudent] = useState(null); 
 
-  // Fetch students from backend
   useEffect(() => {
     const fetchStudents = async () => {
       try {
@@ -23,7 +23,6 @@ function StudentList({ onRefresh, selectedHostelId }) {
           return;
         }
 
-        // Construct URL with hostelId filter if selectedHostelId exists
         const url = selectedHostelId
           ? `http://localhost:5000/api/students?hostelId=${selectedHostelId}`
           : 'http://localhost:5000/api/students';
@@ -50,7 +49,7 @@ function StudentList({ onRefresh, selectedHostelId }) {
     };
 
     fetchStudents();
-  }, [onRefresh, selectedHostelId]); // Re-run effect when onRefresh or selectedHostelId changes
+  }, [onRefresh, selectedHostelId]); 
 
 
   const handleDelete = async (studentId, studentName) => {
@@ -79,7 +78,7 @@ function StudentList({ onRefresh, selectedHostelId }) {
 
       alert(`Student ${studentName} deleted successfully!`);
       if (onRefresh) {
-        onRefresh(); // Call the callback from AdminDashboard to refresh the list
+        onRefresh();
       }
 
     } catch (err) {
@@ -88,26 +87,29 @@ function StudentList({ onRefresh, selectedHostelId }) {
     }
   };
 
+  // Handler for Edit button click
   const handleEdit = (student) => {
     setCurrentStudent(student);
-    setShowEditModal(true);
+    setModalMode('edit');
+    setShowModal(true); 
   };
 
   const handleView = (student) => {
     setCurrentStudent(student);
-    setShowEditModal(true); // For simplicity, re-use edit modal/form for view
+    setModalMode('view');
+    setShowModal(true); 
   };
 
-  const handleCloseEditModal = () => {
-    setShowEditModal(false);
-    setCurrentStudent(null);
+  const handleCloseModal = () => { 
+    setShowModal(false);
+    setModalMode(null); 
+    setCurrentStudent(null); 
   };
 
-  const handleSaveEdit = () => {
-    setShowEditModal(false);
-    setCurrentStudent(null);
+  const handleSaveEdit = () => { 
+    handleCloseModal();
     if (onRefresh) {
-      onRefresh();
+      onRefresh(); 
     }
   };
 
@@ -201,18 +203,25 @@ function StudentList({ onRefresh, selectedHostelId }) {
         </div>
       )}
 
-      {/* Modal for Edit/View Student */}
-      {currentStudent && (
+      {/* Conditional Modal Content based on modalMode */}
+      {showModal && currentStudent && ( // Only render modal if shown and student data is available
         <Modal
-          show={showEditModal}
-          title={`Edit Student: ${currentStudent.fullName}`}
-          onClose={handleCloseEditModal}
+          show={showModal}
+          title={modalMode === 'edit' ? `Edit Student: ${currentStudent.fullName}` : `View Student: ${currentStudent.fullName}`}
+          onClose={handleCloseModal}
         >
-          <EditStudentForm
-            student={currentStudent}
-            onSave={handleSaveEdit}
-            onCancel={handleCloseEditModal}
-          />
+          {modalMode === 'edit' ? ( // If mode is 'edit', render EditStudentForm
+            <EditStudentForm
+              student={currentStudent}
+              onSave={handleSaveEdit}
+              onCancel={handleCloseModal}
+            />
+          ) : ( // If mode is 'view', render ViewStudentDetails
+            <ViewStudentDetails
+              student={currentStudent}
+              onClose={handleCloseModal}
+            />
+          )}
         </Modal>
       )}
     </div>

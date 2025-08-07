@@ -1,20 +1,20 @@
-// src/App.jsx - Updated for single generic registration form
-import React, { useState, useEffect } from 'react';
+// src/App.jsx 
+import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useNavigate } from 'react-router-dom';
 
 // Import main components
 import Login from './components/Auth/Login';
-import Register from './components/Auth/register'; // <-- RE-ADD THIS IMPORT
-// REMOVED: import StudentRegister from './components/Auth/StudentRegister';
-// REMOVED: import AdminRegister from './components/Auth/AdminRegister';
+import Register from './components/Auth/register';
 import AdminDashboard from './components/Dashboards/AdminDashboard';
 import StudentDashboard from './components/Dashboards/StudentDashboard';
 import HomePage from './components/HomePage';
 import Modal from './components/Modal';
+import CompleteProfileForm from './components/Dashboards/Student/CompleteProfileForm'; 
 
 function App() {
   const currentToken = localStorage.getItem('token');
   const currentUserRole = localStorage.getItem('userRole');
+  const currentStudentId = localStorage.getItem('studentId'); 
 
   const [isAuthenticated, setIsAuthenticated] = useState(!!currentToken);
   const [userRole, setUserRole] = useState(currentUserRole);
@@ -29,6 +29,8 @@ function App() {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
     localStorage.removeItem('userId');
+    localStorage.removeItem('studentId'); 
+    localStorage.removeItem('userEmail');
     setIsAuthenticated(false);
     setUserRole(null);
     navigate('/');
@@ -49,16 +51,27 @@ function App() {
                   <li className="nav-item">
                     <Link className="nav-link" to="/login">Login</Link>
                   </li>
-                  {/* Single Register link in Navbar */}
                   <li className="nav-item">
-                    <Link className="nav-link" to="/register">Register</Link> {/* <-- USE SINGLE REGISTER LINK */}
+                    <Link className="nav-link" to="/register">Register</Link>
                   </li>
                 </>
               )}
               {isAuthenticated && (
                 <>
                   <li className="nav-item">
-                    <Link className="nav-link" to={userRole === 'admin' ? '/admin/dashboard' : '/student/dashboard'}>Dashboard</Link>
+                   
+                    <Link
+                        className="nav-link"
+                        to={
+                          userRole === 'admin'
+                            ? '/admin/dashboard'
+                            : (userRole === 'student' && !currentStudentId) 
+                              ? '/student/complete-profile' 
+                              : '/student/dashboard'
+                        }
+                    >
+                        Dashboard
+                    </Link>
                   </li>
                   <li className="nav-item">
                     <a className="nav-link" href="#" onClick={handleLogout}>Logout</a>
@@ -74,13 +87,23 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
-          {/* Single registration route */}
-          <Route path="/register" element={<Register />} /> {/* <-- USE SINGLE REGISTER ROUTE */}
-          {/* REMOVED: <Route path="/student/register" element={<StudentRegister />} /> */}
-          {/* REMOVED: <Route path="/admin/register" element={<AdminRegister />} /> */}
+          <Route path="/register" element={<Register />} />
+
+          <Route
+            path="/student/complete-profile"
+            element={isAuthenticated && userRole === 'student' && !currentStudentId 
+              ? <CompleteProfileForm />
+              : <p className="text-center mt-5">Access Denied or Profile Already Complete. If you believe this is an error, please login again. <Link to="/login">Login</Link></p>
+            }
+          />
 
           <Route path="/admin/dashboard" element={isAuthenticated && userRole === 'admin' ? <AdminDashboard /> : <p className="text-center mt-5">Please login as Admin to view this page.</p>} />
-          <Route path="/student/dashboard" element={isAuthenticated && userRole === 'student' ? <StudentDashboard /> : <p className="text-center mt-5">Please login as Student to view this page.</p>} />
+          <Route path="/student/dashboard" element={isAuthenticated && userRole === 'student' 
+            ? currentStudentId 
+              ? <StudentDashboard />
+              : <p className="text-center mt-5">Please complete your student profile first. <Link to="/student/complete-profile">Complete Profile</Link></p>
+            : <p className="text-center mt-5">Please login as Student to view this page.</p>
+          } />
 
           <Route path="*" element={<div className="container mt-5 text-center"><h2>404 Not Found</h2><p>The page you are looking for does not exist.</p></div>} />
         </Routes>

@@ -1,16 +1,11 @@
-// src/components/Dashboards/Student/Rooms.jsx - UPDATED (Direct Booking)
+// src/components/Dashboards/Student/Rooms.jsx - UPDATED (Fixed initialization error)
 import React, { useState, useEffect } from 'react';
-// Removed Modal import as it's no longer needed for booking directly
-// Removed BookingRequestForm component definition
 
 // Main Rooms Component
-function Rooms({ selectedHostel }) {
+function Rooms({ selectedHostel, onRoomBooked }) {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  // Removed modal related states
-  // const [showBookingModal, setShowBookingModal] = useState(false);
-  // const [roomToRequest, setRoomToRequest] = useState(null);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -29,8 +24,6 @@ function Rooms({ selectedHostel }) {
           return;
         }
 
-        // Fetch all hostels to find the ID of the selected hostel (by name)
-        // This GET /api/hostels is PUBLIC, but also requires Auth token for consistency in dashboard
         const allHostelsResponse = await fetch('http://localhost:5000/api/hostels', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -40,11 +33,10 @@ function Rooms({ selectedHostel }) {
         if (!selectedHostelObj) {
           setError('Selected hostel not found or invalid.');
           setLoading(false);
-          setRooms([]);
+          setRooms([]); 
           return;
         }
 
-        // Fetch rooms filtered by the selected hostel's ID and availability
         const response = await fetch(`http://localhost:5000/api/rooms?hostelId=${selectedHostelObj._id}&isAvailable=true`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -59,17 +51,18 @@ function Rooms({ selectedHostel }) {
       } catch (err) {
         console.error('Error fetching rooms for student view:', err.message);
         setError(err.message || 'Failed to load room data.');
+        setRooms([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchRooms();
-  }, [selectedHostel]); // Re-fetch when selectedHostel changes
+  }, [selectedHostel]);
 
   const handleBookNowClick = async (room) => {
     if (!window.confirm(`Are you sure you want to book Room ${room.roomNumber} in ${room.hostel.name}?`)) {
-        return; // User cancelled
+        return;
     }
 
     try {
@@ -78,21 +71,19 @@ function Rooms({ selectedHostel }) {
             alert('Not authenticated. Please log in to book a room.');
             return;
         }
-        // Ensure student profile exists for this user (backend logic handles creation if not)
-        const userId = localStorage.getItem('userId'); // Get userId from localStorage
+        const userId = localStorage.getItem('userId');
         if (!userId) {
             alert('User ID not found in session. Please log in again or contact admin.');
             return;
         }
 
-        // --- NEW API ENDPOINT FOR DIRECT BOOKING ---
         const response = await fetch('http://localhost:5000/api/rooms/book', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ roomId: room._id }) // Send only the room ID
+            body: JSON.stringify({ roomId: room._id })
         });
 
         if (!response.ok) {
@@ -102,11 +93,9 @@ function Rooms({ selectedHostel }) {
 
         const data = await response.json();
         alert(`Success! ${data.message}`);
-        // Optimistically update the room's availability in the UI
-        setRooms(prevRooms => prevRooms.map(r => r._id === room._id ? { ...r, currentOccupancy: r.currentOccupancy + 1, isAvailable: r.currentOccupancy + 1 < r.capacity } : r));
-        // A full re-fetch might be needed for absolute accuracy, but this provides immediate feedback.
-        // If the component's useEffect is dependent on selectedHostel, a simple state toggle in parent could trigger it.
-        // For now, this local update or a manual page refresh will reflect the change.
+        if (onRoomBooked) {
+            onRoomBooked();
+        }
     } catch (err) {
         console.error('Book Room Error:', err.message);
         setError(err.message || 'Failed to book room. Please try again.');
@@ -184,8 +173,6 @@ function Rooms({ selectedHostel }) {
           </div>
         ))}
       </div>
-
-      {/* Removed Booking Request Modal */}
     </div>
   );
 }

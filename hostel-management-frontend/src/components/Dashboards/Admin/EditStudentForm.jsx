@@ -6,7 +6,7 @@ function EditStudentForm({ student, onSave, onCancel }) {
     rollNumber: student.rollNumber || '',
     fullName: student.fullName || '',
     email: student.email || '',
-    hostelId: student.hostel ? student.hostel._id : '', // Use _id from populated hostel
+    hostelId: student.hostel ? student.hostel._id : '',
     room: student.room || '',
     is_checked_in: student.is_checked_in, // Boolean state
     payment_status: student.payment_status || 'Pending',
@@ -22,7 +22,6 @@ function EditStudentForm({ student, onSave, onCancel }) {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  // Fetch Hostels for dropdown (same as AddStudentForm)
   useEffect(() => {
     const fetchHostels = async () => {
       try {
@@ -52,8 +51,6 @@ function EditStudentForm({ student, onSave, onCancel }) {
 
     fetchHostels();
   }, []);
-
-  // Effect to update form data if the 'student' prop changes (e.g., if modal is reused)
   useEffect(() => {
     setFormData({
       rollNumber: student.rollNumber || '',
@@ -72,7 +69,7 @@ function EditStudentForm({ student, onSave, onCancel }) {
     });
     setError('');
     setSuccess('');
-  }, [student]); // Re-run if 'student' prop changes
+  }, [student]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -102,16 +99,7 @@ function EditStudentForm({ student, onSave, onCancel }) {
         return;
       }
 
-      // Prepare data for API: ensure numbers are parsed, features are array
-      const dataToSend = {
-        ...formData,
-        // Assuming currentOccupancy/capacity are not directly updated from this form
-        // Ensure capacity and currentOccupancy are numbers if they were added to form
-        // capacity: parseInt(formData.capacity),
-        // currentOccupancy: parseInt(formData.currentOccupancy),
-        // Features might be array or string, based on backend model and form input
-        // features: formData.features.split(',').map(f => f.trim()).filter(f => f !== '')
-      };
+      const dataToSend = { ...formData }; // Ensure numbers are parsed for capacity/occupancy if directly editable
 
       const response = await fetch(`http://localhost:5000/api/students/${student._id}`, {
         method: 'PUT',
@@ -129,7 +117,7 @@ function EditStudentForm({ student, onSave, onCancel }) {
 
       setSuccess('Student updated successfully!');
       if (onSave) {
-        onSave(); // Callback to signal successful update (e.g., close modal, refresh list)
+        onSave();
       }
     }
     catch (err) {

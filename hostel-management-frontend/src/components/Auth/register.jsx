@@ -1,13 +1,13 @@
-// src/components/Auth/register.jsx - Generic Registration Form (for admin or student)
+// src/components/Auth/register.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Register() {
-  const [fullName, setFullName] = useState(''); // Kept for UI consistency, not used by backend for generic register
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState('student'); // Default role: student
+  const [role, setRole] = useState('student');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
@@ -23,13 +23,12 @@ function Register() {
     }
 
     try {
-      // This form hits the generic /api/auth/register endpoint
       const response = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, role }), // Send role explicitly
+        body: JSON.stringify({ email, password, role }),
       });
 
       if (!response.ok) {
@@ -42,18 +41,30 @@ function Register() {
       localStorage.setItem('token', data.token);
       localStorage.setItem('userRole', data.user.role);
       localStorage.setItem('userId', data.user.id);
+      localStorage.setItem('userEmail', data.user.email); 
 
       setSuccess('Registration successful! You are now logged in.');
-      // alert('Registration successful! You are now logged in.'); // Optional alert
+      if (data.user.role === 'student') {
+        const profileCheckResponse = await fetch('http://localhost:5000/api/student-profiles/me', {
+            headers: { 'Authorization': `Bearer ${data.token}` }
+        });
 
-      if (data.user.role === 'admin') {
+        if (profileCheckResponse.status === 404) { 
+            localStorage.removeItem('studentId'); 
+            navigate('/student/complete-profile'); 
+        } else if (!profileCheckResponse.ok) {
+            const profileErrorData = await profileCheckResponse.json();
+            setError(profileErrorData.message || 'Failed to verify profile status.');
+         
+        } else {
+            const profileData = await profileCheckResponse.json();
+            localStorage.setItem('studentId', profileData._id); 
+            navigate('/student/dashboard'); 
+        }
+      } else { 
         navigate('/admin/dashboard');
-      } else if (data.user.role === 'student') {
-        navigate('/student/dashboard');
-      } else {
-        navigate('/login');
-        setError('Registration successful, but unknown role. Please contact support.');
       }
+
     } catch (err) {
       console.error('Registration Error:', err.message);
       setError(err.message || 'Registration failed. Please try again.');

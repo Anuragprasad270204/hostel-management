@@ -1,12 +1,12 @@
-// models/Student.js
+// models/Student.js - UPDATED (hostel is not required)
 const mongoose = require('mongoose');
 
 const StudentSchema = new mongoose.Schema({
-  user: { // Reference to the User model (for authentication/login)
+  user: { 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true,
-    unique: true, // A user can only be associated with one student profile
+    unique: true, 
   },
   rollNumber: {
     type: String,
@@ -19,22 +19,22 @@ const StudentSchema = new mongoose.Schema({
     required: [true, 'Full Name is required'],
     trim: true,
   },
-  email: { // Redundant but useful for quick lookups, linked to User model
+  email: { 
     type: String,
     required: [true, 'Email is required'],
     unique: true,
     match: [/.+@.+\..+/, 'Please use a valid email address'],
   },
-  hostel: { // Reference to the Hostel model
+  hostel: { 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Hostel',
-    required: [true, 'Hostel is required'],
+    required: false,
   },
-  room: { // For now, storing as string. Will link to Room model later.
+  room: { 
     type: String,
     trim: true,
   },
-  is_checked_in: { // Status of student check-in
+  is_checked_in: {
     type: Boolean,
     default: false,
   },
